@@ -1,0 +1,158 @@
+# =============================================================================
+# ChainSentinel — Professional .gitignore
+# Blockchain Security Intelligence Platform
+# =============================================================================
+
+# --- Environment & secrets (NEVER commit) ---
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+secrets/
+credentials.json
+service-account*.json
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Editors & IDEs ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# --- Node.js / Frontend ---
+node_modules/
+.npm
+.pnpm-store/
+.yarn/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.next/
+out/
+build/
+dist/
+.turbo/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+.nyc_output/
+.eslintcache
+.stylelintcache
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+.eggs/
+*.egg-info/
+*.egg
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+pip-log.txt
+pip-delete-this-directory.txt
+*.manifest
+*.spec
+
+# --- Database ---
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
+postgres-data/
+
+# --- Docker ---
+docker/volumes/
+docker/data/
+
+# --- Blockchain / Smart Contracts ---
+contracts/cache/
+contracts/artifacts/
+contracts/typechain-types/
+contracts/coverage/
+contracts/coverage.json
+contracts/gas-report.txt
+contracts/deployments/localhost/
+contracts/deployments/hardhat/
+contracts/broadcast/
+contracts/out/
+contracts/cache_foundry/
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+# lib/ managed via forge install — run `forge install` after clone
+contracts/lib/
+!contracts/lib/.gitkeep
+
+# Foundry
+contracts/foundry/cache/
+contracts/foundry/out/
+
+# Hardhat
+cache/
+artifacts/
+typechain-types/
+
+# --- AI / Ollama ---
+.ollama/
+models/
+*.gguf
+embeddings/
+
+# --- Testing ---
+test-results/
+playwright-report/
+playwright/.cache/
+*.snap
+
+# --- Logs & temp ---
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+*.bak
+
+# --- Build artifacts ---
+*.tar.gz
+*.zip
+*.7z
+
+# --- Misc ---
+.cache/
+.parcel-cache/
+.sentryclirc

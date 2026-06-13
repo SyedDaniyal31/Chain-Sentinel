@@ -1,0 +1,12 @@
+# Development overrides — merge with docker-compose.yml
+# Usage: docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+
+  adminer:
+    profiles: []  # Enable Adminer by default in dev

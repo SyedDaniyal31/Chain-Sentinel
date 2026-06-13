@@ -1,0 +1,16 @@
+{
+  "name": "chainsentinel-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ChainSentinel smart contracts — Hardhat + Foundry",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "forge:test": "forge test",
+    "forge:build": "forge build"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

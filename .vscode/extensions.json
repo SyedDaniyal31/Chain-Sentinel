@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "NomicFoundation.hardhat-solidity",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens"
+  ]
+}

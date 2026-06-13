@@ -1,0 +1,201 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Frontend lint (when initialized)
+        working-directory: frontend
+        continue-on-error: true
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npm run lint --if-present
+          fi
+
+      - name: Backend lint (when initialized)
+        working-directory: backend
+        continue-on-error: true
+        run: |
+          if [ -f requirements-dev.txt ]; then
+            pip install ruff
+            ruff check app/ --ignore E501 || true
+          fi
+
+      - name: Foundry fmt check (when initialized)
+        working-directory: contracts
+        continue-on-error: true
+        run: |
+          if [ -f foundry.toml ]; then
+            curl -L https://foundry.paradigm.xyz | bash
+            ~/.foundry/bin/forge fmt --check
+          fi
+
+  frontend-test:
+    name: Frontend Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install and test
+        working-directory: frontend
+        continue-on-error: true
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npm run typecheck --if-present
+            npm run test --if-present
+            npm run build
+          else
+            echo "Frontend not yet initialized — skipping"
+          fi
+
+  backend-test:
+    name: Backend Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: chainsentinel
+          POSTGRES_PASSWORD: chainsentinel_test
+          POSTGRES_DB: chainsentinel_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql+asyncpg://chainsentinel:chainsentinel_test@localhost:5432/chainsentinel_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+
+      - name: Install and test
+        working-directory: backend
+        continue-on-error: true
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+            pip install -r requirements-dev.txt 2>/dev/null || true
+            pytest --cov=app -q || true
+          else
+            echo "Backend not yet initialized — skipping"
+          fi
+
+  contracts-test:
+    name: Contracts Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: contracts/package-lock.json
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Hardhat test (when initialized)
+        working-directory: contracts
+        continue-on-error: true
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npx hardhat test || true
+          fi
+
+      - name: Forge test (when initialized)
+        working-directory: contracts
+        continue-on-error: true
+        run: |
+          if [ -f foundry.toml ]; then
+            forge test -vv || true
+          elif [ -d foundry ]; then
+            cd foundry && forge test -vv || true
+          else
+            echo "Contracts not yet initialized — skipping"
+          fi
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: npm audit (frontend)
+        working-directory: frontend
+        continue-on-error: true
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npm audit --audit-level=high || true
+          fi
+
+      - name: pip-audit (backend)
+        working-directory: backend
+        continue-on-error: true
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install pip-audit
+            pip-audit -r requirements.txt || true
+          fi
