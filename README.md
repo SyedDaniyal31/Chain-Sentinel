@@ -185,4 +185,4 @@ Before deploying:
 
 ## License
 
-TBD — Add license before public release.
+This project is licensed under the [MIT License](LICENSE).
