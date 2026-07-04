@@ -2,85 +2,101 @@
 
 **Blockchain Security Intelligence Platform**
 
-ChainSentinel unifies smart contract analysis, on-chain monitoring, risk scoring, and AI-assisted security reporting into a single platform for protocol teams and security researchers.
+ChainSentinel unifies smart contract analysis, runtime intelligence, risk scoring, protocol scanning, and continuous security monitoring into a single platform for protocol teams and security researchers.
 
 ---
 
-## Status
+## Current Status
 
 | Layer | Status | Stack |
 |-------|--------|-------|
-| Frontend | Scaffold ready | Next.js 15, TypeScript, TailwindCSS, ShadCN UI |
-| Backend | Scaffold ready | Python, FastAPI |
-| Database | Docker-ready | PostgreSQL 16 |
-| Contracts | Scaffold ready | Solidity, Hardhat, Foundry |
-| AI | Local inference | Ollama + Qwen 3 |
-| DevOps | Configured | Docker Compose, GitHub Actions |
+| **Backend API** | Implemented | Python 3.12, FastAPI, SQLAlchemy, Alembic |
+| **Frontend** | Implemented | Next.js 15, TypeScript, Tailwind CSS |
+| **Database** | Implemented | PostgreSQL 16 (Docker) |
+| **Security engines** | Implemented | Contract/wallet analyzers, risk engine, runtime intelligence (M9), protocol scan (M8) |
+| **Continuous monitoring** | Library complete (M10) | Watch registry → change detection → re-analysis → risk delta → alerts → history |
+| **Contracts** | Scaffold | Solidity, Hardhat, Foundry |
+| **Infrastructure** | Dev-ready | Docker Compose (Postgres, Redis), GitHub Actions CI |
 
-> Application code is not yet implemented. This repository contains architecture docs, environment configuration, and initialization scripts.
+**Test suite:** 522 backend unit/integration tests (`backend/tests/`).
+
+The **production API** today exposes on-demand wallet and contract scanning. The **continuous monitoring pipeline** is implemented as backend libraries under `backend/app/blockchain/continuous/`; API and scheduler integration are planned in the [development roadmap](./docs/08-development-roadmap.md).
+
+---
+
+## Features (Implemented)
+
+### On-demand scanning (API + dashboard)
+
+- `POST /api/v1/scans` — queue wallet or contract analysis
+- `GET /api/v1/scans`, `/scans/{id}`, `/scans/summary` — history and results
+- `GET /api/v1/chains` — supported chain list
+- Contract analysis: proxy detection, governance, capabilities, honeypot simulation, liquidity, wallet intelligence, protocol intelligence
+- Risk evidence model (M7) with correlation engine and executive protocol reports (M8.4)
+
+### Runtime intelligence (M9)
+
+- Transaction intelligence, call trace intelligence, state transition intelligence, exploit simulation
+
+### Continuous security platform (M10 — library)
+
+- Watch registry, snapshot change detection, selective re-analysis, risk delta, alert engine, baseline history & timeline
 
 ---
 
 ## Prerequisites
 
-| Tool | Required Version | Purpose |
-|------|------------------|---------|
-| Node.js | 20.x or 22.x LTS (≥18.18) | Frontend, Hardhat, tooling |
-| Python | **3.12.x** (recommended) | FastAPI backend |
-| Git | ≥2.40 | Version control |
-| Docker Desktop | Latest | PostgreSQL, Redis, local stack |
-| PostgreSQL | 16+ (via Docker) | Primary datastore |
-| Ollama | Latest | Local LLM inference |
-| Foundry | Latest | Solidity testing & deployment |
-| Hardhat | 3.x | JS toolchain for contracts |
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Node.js | 20.x or 22.x LTS | Frontend |
+| Python | **3.12.x** | Backend |
+| Docker Desktop | Latest | PostgreSQL, Redis |
+| Git | ≥ 2.40 | Version control |
+| Foundry | Latest (optional) | Trade simulation, contract tests |
 
-See [Local Development Setup](./docs/09-local-development-setup.md) for full installation instructions.
+See [Local Development Setup](./docs/09-local-development-setup.md) for full installation.
 
 ---
 
 ## Quick Start
 
-### 1. Verify your environment
-
-```powershell
-cd D:\ChainSentinel
-.\scripts\verify-environment.ps1
-```
-
-### 2. Install missing tools (Windows)
-
-```powershell
-# Run PowerShell as Administrator
-.\scripts\setup-windows.ps1
-```
-
-### 3. Initialize project scaffolds (when ready to build)
-
-```powershell
-.\scripts\init-project.ps1
-```
-
-### 4. Start infrastructure
+### 1. Start infrastructure
 
 ```powershell
 docker compose -f docker/docker-compose.yml up -d
 ```
 
-### 5. Start development servers (after init)
+### 2. Backend
 
 ```powershell
-# Terminal 1 — Backend
 cd backend
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+Copy-Item .env.example .env
+alembic upgrade head
 uvicorn app.main:app --reload --port 8000
+```
 
-# Terminal 2 — Frontend
+OpenAPI (development): http://localhost:8000/docs
+
+### 3. Frontend
+
+```powershell
 cd frontend
+npm ci
+Copy-Item .env.local.example .env.local   # if present
 npm run dev
+```
 
-# Terminal 3 — Local chain (after contracts init)
-cd contracts
-npx hardhat node
+Dashboard: http://localhost:3000
+
+### 4. Run tests
+
+```powershell
+cd backend
+pytest -q
 ```
 
 ---
@@ -89,18 +105,35 @@ npx hardhat node
 
 ```
 ChainSentinel/
-├── frontend/          # Next.js 15 dashboard
-├── backend/           # FastAPI API server
-├── contracts/         # Solidity + Hardhat + Foundry
-├── database/          # Migrations, seeds, init SQL
-├── docker/            # Docker Compose & service configs
-├── docs/              # Architecture & setup documentation
-├── scripts/           # Setup, verify, init automation
-├── tests/             # Cross-stack integration & E2E
-├── .github/           # GitHub Actions CI/CD
-├── .gitignore
-└── README.md
+├── backend/           # FastAPI app, analyzers, blockchain engines
+│   └── app/blockchain/
+│       ├── runtime/       # M9 transaction/trace/state/simulation
+│       ├── risk/          # M7 evidence & correlation
+│       ├── protocol_scan/ # M8 discovery & scheduling
+│       └── continuous/    # M10 watch → alert → history
+├── frontend/          # Next.js dashboard
+├── contracts/         # Solidity test contracts
+├── database/          # PostgreSQL init SQL
+├── docker/            # Docker Compose (Postgres, Redis)
+├── docs/              # Architecture and setup documentation
+├── scripts/           # Environment verify & setup scripts
+└── .github/workflows/ # CI pipeline
 ```
+
+---
+
+## API (v1)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Service health |
+| `GET` | `/api/v1/chains` | Supported chains |
+| `POST` | `/api/v1/scans` | Create scan job |
+| `GET` | `/api/v1/scans` | Paginated scan history |
+| `GET` | `/api/v1/scans/{id}` | Scan job + result |
+| `GET` | `/api/v1/scans/summary` | Aggregate statistics |
+
+Full request/response schemas: `http://localhost:8000/docs` (non-production environments).
 
 ---
 
@@ -108,44 +141,48 @@ ChainSentinel/
 
 | Document | Description |
 |----------|-------------|
-| [Architecture Index](./docs/README.md) | Platform architecture overview |
-| [Local Development Setup](./docs/09-local-development-setup.md) | Tool installation & verification |
-| [Docker Architecture](./docs/10-docker-architecture.md) | Container topology |
-| [GitHub Actions CI/CD](./docs/11-github-actions-cicd.md) | Pipeline design |
-| [30-Day Roadmap](./docs/12-30-day-roadmap.md) | Learning-by-building plan |
+| [Architecture Index](./docs/README.md) | Documentation map |
+| [System Architecture](./docs/02-system-architecture.md) | Platform topology |
+| [Development Roadmap](./docs/08-development-roadmap.md) | Phased delivery plan |
+| [Local Development Setup](./docs/09-local-development-setup.md) | Tooling & environment |
+| [Docker Architecture](./docs/10-docker-architecture.md) | Container stack |
+| [Database Migrations](./backend/docs/MIGRATIONS.md) | Alembic workflow |
+
+See [docs/README.md](./docs/README.md) for the full documentation index.
 
 ---
 
 ## Environment Variables
 
-Copy the root template and per-service examples:
-
 ```powershell
-Copy-Item .env.example .env
-Copy-Item frontend\.env.local.example frontend\.env.local
 Copy-Item backend\.env.example backend\.env
 ```
 
-Never commit `.env` files. See `.env.example` for all variables.
+Key settings:
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection |
+| `ETH_RPC_URL` / `CHAIN_ID` | Primary chain RPC |
+| `ETHERSCAN_API_KEY` | Verified source lookup (optional) |
+| `DB_AUTO_CREATE_TABLES` | Dev only; use `false` + Alembic in production |
+| `CORS_ORIGINS` | Frontend origin(s) |
+
+Never commit `.env` files.
 
 ---
 
-## Security
+## Production Notes
 
-- Do not commit private keys, API secrets, or `.env` files
-- Use Hardhat/Anvil default accounts **only** for local development
-- Rotate `API_SECRET_KEY` before any deployment
+Before deploying:
+
+1. Set `APP_ENV=production`, `APP_DEBUG=false`, `DB_AUTO_CREATE_TABLES=false`
+2. Run `alembic upgrade head` on PostgreSQL
+3. Configure authentication and rate limiting (planned — see roadmap)
+4. Use dedicated RPC endpoints with API keys
 
 ---
 
 ## License
 
 TBD — Add license before public release.
-
----
-
-## Contributing
-
-1. Run `.\scripts\verify-environment.ps1` before opening a PR
-2. Follow conventions in [docs/01-folder-structure.md](./docs/01-folder-structure.md)
-3. Keep architecture docs updated when changing system boundaries

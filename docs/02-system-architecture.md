@@ -316,5 +316,6 @@ ChainAdapter
 ## 2.12 Related Documents
 
 - [Database Schema](./03-database-schema.md)
-- [API Endpoints](./04-api-endpoints.md)
 - [Risk Scoring Engine](./06-risk-scoring-engine.md)
+- [Development Roadmap](./08-development-roadmap.md)
+- Live API: backend `/docs` (OpenAPI, non-production)

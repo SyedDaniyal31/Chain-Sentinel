@@ -477,4 +477,5 @@ Application sets `app.current_org_id` per request from JWT/API key context.
 ## 3.9 Related Documents
 
 - [Risk Scoring Engine](./06-risk-scoring-engine.md) — How scores populate `risk_scores`
-- [API Endpoints](./04-api-endpoints.md) — REST access patterns
+- [Development Roadmap](./08-development-roadmap.md) — Planned API surface
+- Live API: backend `/docs` (OpenAPI, non-production)

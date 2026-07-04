@@ -125,19 +125,12 @@ docs/
 ├── 01-folder-structure.md
 ├── 02-system-architecture.md
 ├── 03-database-schema.md
-├── 04-api-endpoints.md
-├── 05-smart-contract-architecture.md
 ├── 06-risk-scoring-engine.md
-├── 07-ai-report-generation.md
 ├── 08-development-roadmap.md
-├── adr/                            # Architecture Decision Records
-│   └── 0001-monorepo-vs-polyrepo.md
-├── runbooks/                       # Operational procedures
-│   ├── incident-response.md
-│   └── chain-node-failover.md
-└── diagrams/                       # Source files (Mermaid, Excalidraw, PNG)
-    ├── system-context.mmd
-    └── data-flow.mmd
+├── 09-local-development-setup.md
+├── 10-docker-architecture.md
+├── 11-github-actions-cicd.md
+└── diagrams/                       # Source files (optional)
 ```
 
 ---

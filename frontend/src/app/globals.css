@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #070b14;
+  --foreground: #e8edf7;
+  --surface: #0d1424;
+  --surface-elevated: #131c30;
+  --border: #1f2a44;
+  --muted: #8b9cc0;
+  --muted-foreground: #6b7a99;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+  --risk-low: #22c55e;
+  --risk-medium: #f59e0b;
+  --risk-high: #ef4444;
+  --risk-critical: #a855f7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-risk-critical: var(--risk-critical);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgb(59 130 246 / 0.15), transparent),
+    var(--background);
+  color: var(--foreground);
 }
 
-body {
-  background: var(--background);
+::selection {
+  background: rgb(59 130 246 / 0.35);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

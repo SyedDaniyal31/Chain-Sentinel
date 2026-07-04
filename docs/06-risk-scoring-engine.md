@@ -356,7 +356,7 @@ conditions:
 action_on_fail: block_merge
 ```
 
-Evaluated by API `/ci/scan/{id}/gate` — see [API Endpoints](./04-api-endpoints.md).
+Evaluated by a future CI gate endpoint (planned — see [Development Roadmap](./08-development-roadmap.md)).
 
 ---
 
@@ -392,4 +392,4 @@ All model promotions require:
 
 - [Database Schema](./03-database-schema.md) — `risk_scores` table
 - [System Architecture](./02-system-architecture.md) — Event flow
-- [AI Report Generation](./07-ai-report-generation.md) — Score narrative synthesis
+- Protocol reports: `backend/app/blockchain/protocol_report/`
