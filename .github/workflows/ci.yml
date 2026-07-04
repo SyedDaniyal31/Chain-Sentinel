@@ -145,35 +145,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: contracts/package-lock.json
-
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Hardhat test (when initialized)
+      - name: Install Forge dependencies
         working-directory: contracts
-        continue-on-error: true
-        run: |
-          if [ -f package.json ]; then
-            npm ci
-            npx hardhat test || true
-          fi
-
-      - name: Forge test (when initialized)
-        working-directory: contracts
-        continue-on-error: true
         run: |
           if [ -f foundry.toml ]; then
-            forge test -vv || true
-          elif [ -d foundry ]; then
-            cd foundry && forge test -vv || true
+            forge install foundry-rs/forge-std --no-git
+          fi
+
+      - name: Forge test
+        working-directory: contracts
+        run: |
+          if [ -f foundry.toml ]; then
+            forge test -vv
           else
-            echo "Contracts not yet initialized — skipping"
+            echo "Foundry project not initialized — skipping"
+          fi
+
+      - name: Hardhat test (when lockfile present)
+        working-directory: contracts
+        continue-on-error: true
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+            npx hardhat test
+          else
+            echo "No contracts/package-lock.json — skipping Hardhat tests"
           fi
 
   security-audit:
